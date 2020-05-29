@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Simple Polylines</title>
+    <style>
+        /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+        #map {
+            height: 100%;
+        }
+
+        /* Optional: Makes the sample page fill the window. */
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <script>
+
+        var flightPlanCoordinates = [
+                { lat: 33.837143, lng: 100.558612 },
+                { lat: 39.485832, lng: 100.122377 },     
+                { lat: 37.485832, lng: 126.122377 },                
+                { lat: 37.485832, lng: 140.122377 },
+                // { lat: -18.142, lng: 178.431 },              
+                // { lat: -27.467, lng: 153.027 }       
+            ];      
+
+        function initMap() {
+
+            var result = distance(flightPlanCoordinates);
+
+            console.log(result);        
+
+            var map = new google.maps.Map(document.getElementById('map'), {
+                zoom: result.zoomLevel,                                          
+                center: result.centerLatlng,           
+                mapTypeId: 'roadmap'        
+            });                               
+
+            var flightPath = new google.maps.Polyline({
+                path: flightPlanCoordinates,
+                geodesic: true,     
+                strokeColor: '#FF0000',
+                strokeOpacity: 1.0,
+                strokeWeight: 2
+            });     
+
+
+            flightPath.setMap(map);
+            var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            var labelIndex = 0;
+
+            for (let index = 0; index < flightPlanCoordinates.length; index++) {    
+                const element = flightPlanCoordinates[index];
+
+                console.log(element);                       
+                var marker = new google.maps.Marker({ position: element, map: map , label: index.toString() , draggable: true,})
+            }       
+
+            var marker = new google.maps.Marker({ position: result.centerLatlng, map: map, title: 'Hello World!' ,animation: google.maps.Animation.DROP
+            , label: "1"                   
+            
+            })
+            flightPath.setMap(map);
+
+        }
+
+
+
+    //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    //:::                                                                         :::
+    //:::  This routine calculates the distance between two points (given the     :::
+    //:::  latitude/longitude of those points). It is being used to calculate     :::
+    //:::  the distance between two locations using GeoDataSource (TM) prodducts  :::
+    //:::                                                                         :::
+    //:::  Definitions:                                                           :::
+    //:::    South latitudes are negative, east longitudes are positive           :::
+    //:::                                                                         :::
+    //:::  Passed to function:                                                    :::
+    //:::    lat1, lon1 = Latitude and Longitude of point 1 (in decimal degrees)  :::
+    //:::    lat2, lon2 = Latitude and Longitude of point 2 (in decimal degrees)  :::
+    //:::    unit = the unit you desire for results                               :::
+    //:::           where: 'M' is statute miles (default)                         :::
+    //:::                  'K' is kilometers                                      :::
+    //:::                  'N' is nautical miles                                  :::
+    //:::                                                                         :::
+    //:::  Worldwide cities and other features databases with latitude longitude  :::
+    //:::  are available at https://www.geodatasource.com                         :::
+    //:::                                                                         :::
+    //:::  For enquiries, please contact sales@geodatasource.com                  :::
+    //:::                                                                         :::
+    //:::  Official Web site: https://www.geodatasource.com                       :::
+    //:::                                                                         :::
+    //:::               GeoDataSource.com (C) All Rights Reserved 2018            :::
+    //:::                                                                         :::
+    //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+    function distance(flightPlanCoordinates) {
+
+        console.log(flightPlanCoordinates);     
+        let result = {}         
+
+        let maxLat = 0;
+        let maxLng = 0;     
+        let minLat = 999 ;
+        let minLng = 999;
+
+        for (let index = 0; index < flightPlanCoordinates.length; index++) {    
+            const element = flightPlanCoordinates[index];
+            lat = element.lat; 
+            lng = element.lng; 
+            
+            //최대  
+            if(maxLat  < lat )      
+                maxLat = lat
+            
+            if(maxLng  < lat )
+            maxLng = lng
+        
+        
+            if(minLat  > lat )      
+                minLat = lat
+            
+            if(minLng  > lat )
+            minLng = lng
+
+            console.log(element);
+            
+        } 
+
+        lat1 = maxLat;
+        lat2 = minLat;
+
+        lon1 = maxLng;
+        lon2 = minLng;
+
+        if ((lat1 == lat2) && (lon1 == lon2)) {
+            resultDist =  0;
+        }
+        else {
+            var radlat1 = Math.PI * lat1/180;
+            var radlat2 = Math.PI * lat2/180;
+            var theta = lon1-lon2;
+            var radtheta = Math.PI * theta/180;
+            var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+            if (dist > 1) {
+                dist = 1;
+            }
+            dist = Math.acos(dist);
+            dist = dist * 180/Math.PI;
+            dist = dist * 60 * 1.1515;
+            if (true) { dist = dist * 1.609344 }
+            if (false) { dist = dist * 0.8684 }
+
+            resultDist = dist;
+        }       
+
+        resultDist = resultDist * 1000
+        console.log("result : "+ resultDist);
+
+        // 줌 레벨 구하기
+        var maxDistance = 24576000;
+        var zoomLevel = 0;
+        for (let i = 1; i < 22; i++) {      
+
+            console.log(" maxDistance : " +  maxDistance);          
+
+            if( (maxDistance - resultDist) < 50000){     
+                console.log(" i " +  i);            
+                zoomLevel = i ;                 
+                break;          
+            }else{              
+                maxDistance = maxDistance /2;
+            }
+            
+        }       
+        
+        result.zoomLevel = zoomLevel;
+
+        // 센터 위치 구하기 //      
+        var lat = 0;
+        var lng = 0;
+
+        for(var i = 0; i <flightPlanCoordinates.length; i++){
+            
+            var element = flightPlanCoordinates[i];
+            lat = lat + element.lat     
+            lng = lng + element.lng     
+        };
+
+
+        var arrSize = flightPlanCoordinates.length;
+        var centerLatlng = new google.maps.LatLng(lat  / arrSize, lng /arrSize); // 위치값 위도 경도
+
+        result.centerLatlng = centerLatlng;
+
+        return result ;
+    }
+
+
+</script>
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCEcNhnGjDY8SockmujDSB381R6Mdy2FeA&callback=initMap">
+        </script>
+</body>
+
+</html>

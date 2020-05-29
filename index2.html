@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>jQuery UI Sortable - Example</title>
+    <link href="https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+
+    <style>
+        button {
+            background: none;
+            border: 0;
+            outline: 0;
+            cursor: pointer;
+        }
+
+        .tab_menu_container {
+            display: flex;
+        }
+
+        .tab_menu_btn {
+            width: 80px;
+            height: 40px;
+            transition: 0.3s all;
+        }
+
+        .tab_menu_btn.on {
+            border-bottom: 2px solid #df0000;
+            font-weight: 700;
+            color: #df0000;
+        }
+
+        .tab_menu_btn:hover {
+            color: #df0000;
+        }
+
+        .tab_box {
+            display: none;
+            padding: 20px;
+        }
+
+        .tab_box.on {
+            display: block;
+        }
+    </style>
+
+    <style>
+        ul {
+
+            min-height: 50px;
+        }
+
+        #sortable-1 {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            width: 75%;
+        }
+
+        #sortable-1 li {
+            margin: 0 3px 3px 3px;
+            padding: 0.4em;
+            padding-left: 1.5em;
+            font-size: 17px;
+            height: 16px;
+
+        }
+
+        .default {
+            background: #cedc98;
+            border: 1px solid #DDDDDD;
+            color: #333333;
+        }
+
+
+        .days>div {
+            min-height: 70px;
+        }
+    </style>
+
+    <script>
+
+        function add() {
+            var html = '<li class = "default">Product 0<label>move</label><span class="handle">handle</span></li>'
+            $('#sortable-1').append(html);
+        }
+
+        function save() {
+
+            var cnt = document.getElementsByClassName("days");
+            
+            for(var i = 0; i < cnt.length; i++){  // 일자만큼 loop 
+                var day = document.getElementsByClassName("days")[i]
+                console.log(day.id)
+                // var jsonDaily = travelSchedule[i];
+
+                for (let index = 0; index < 8; index++) {        // 스케쥴 그룹 종류 만큼 루프 
+
+                    const card = $('#'+day.id+' #schGrp'+index).children('div')
+                    
+                    if(card.length > 0){     // 일정에 카드가 있는 지 체크
+                        
+                        for (let j = 0; j < card.length; j++) {  // 카드 수 만큼 루프
+
+                            dayValue = card.children('input[name=day]').val();
+                            schdValue = card.children('input[name=schdGrp]').val();
+
+                            console.log("hidden value : "+ schdValue)
+                            console.log("arr value : " + travelSchedule[i][j]["schdGrp"]);                            
+                            console.log("arr value : " + travelSchedule[i][j]["cardNm"]);                            
+                                
+                            // console.log(travelSchedule[i][j]["schdGrp"]);
+
+                            travelSchedule[i][j]["day"] = Number(dayValue);             
+                            travelSchedule[i][j]["schdGrp"] = Number(schdValue);        
+
+                        }       
+
+                    }
+
+                }
+
+            }
+
+
+            console.log(
+                travelSchedule
+            )
+
+
+
+        }
+
+        // 5일 짜리 여행이라고 가정
+        var travelSchedule = [];
+
+
+
+
+
+        var card1_1 = {
+            cardNm: "card1_1"
+            , schdGrp: 1
+            , sortOrder: 0
+            , day: 0
+
+        }
+        var card1_2 = {
+            cardNm: "card1_2"
+            , schdGrp: 2
+            , sortOrder: 0
+            , day: 0
+        }
+        var card1_3 = {
+            cardNm: "card1_3"
+            , schdGrp: 3
+            , sortOrder: 0
+            , day: 0
+        }
+
+        var card2_1 = {
+            cardNm: "card2_1"
+            , schdGrp: 1
+            , sortOrder: 0
+            , day: 1
+        }
+
+        var card2_2 = {
+            cardNm: "card2_2"
+            , schdGrp: 2
+            , sortOrder: 0
+            , day: 1
+        }
+
+        var card2_3 = {
+            cardNm: "card2_3"
+            , schdGrp: 3
+            , sortOrder: 0
+            , day: 1
+        }
+
+
+
+        var day1 = [card1_1, card1_2, card1_3];
+        var day2 = [card2_1, card2_2, card2_3];
+
+
+
+        travelSchedule.push(day1);
+        travelSchedule.push(day2);
+        // travelSchedule.push(day1);           
+
+
+        for (let index = 0; index < travelSchedule.length; index++) {
+            const date = travelSchedule[index];
+            console.log(date);
+        }
+
+
+
+
+        $(function () {
+            $('.days').hide();
+            $('#sortable-0').show();
+            var cnt = 1;        
+            travelSchedule.forEach(element => {
+
+                var date = element;
+
+                date.forEach(card => {      
+
+                    console.log(card.cardNm);
+                    let html = `<div class="default" id="${cnt}">
+                                    <label>card Name : ${card.cardNm} </label>
+                                    <span > day : ${card.day}</span>       
+                                    <input type="hidden" name="day" value="${card.day}">
+                                    <input type="hidden" name="schdGrp" value="${card.schdGrp}">
+                                    <label>move</label>                 
+                                    <span class="handle">handle</span>      
+                                </div>`
+                    
+                    console.log('#sortable-' + card.day + '> #schGrp-' + card.schdGrp)
+                    $('#sortable-' + card.day + ' > #schGrp' + card.schdGrp).append(html);
+                    cnt ++;
+                });
+
+            });
+                
+            $(".days > div ").sortable({
+                // handle: '.handle',              
+                connectWith: ".days > div",     
+                stop: function (event, ui) {                                    
+                    console.log(" ui.item : " + ui.item.context.id);
+                    console.log(" ui.item : " + ui.item.context.classList);
+                    console.log(" event.target : " + event.target.id);
+                    var id= ui.item.context.id;     
+                    var schGrp = event.target.id;               
+
+                    schGrp = schGrp.replace("schGrp","");
+
+                    console.log(schGrp)     
+                    $('#'+id +' input[name=schdGrp]' ).val(Number(schGrp));
+
+                    // var sortedIDs = $( ".sortable > ul >li" ).sortable( "toArray" );
+
+                    // console.log(sortedIDs);
+                }
+
+            });
+        });
+
+
+
+
+
+
+
+    </script>
+</head>
+
+<body>
+    
+    <button onclick="add()"> add </button>
+    <button onclick="save()"> 저장 </button>
+
+
+    <div class="sortable">
+
+
+    </div>
+
+    <div class="tab_wrap">
+        <div class="tab_menu_container">
+            <button class="tab_menu_btn1 tab_menu_btn on" type="button">기본정보</button>
+            <button class="tab_menu_btn2 tab_menu_btn" type="button">상세정보</button>
+            <button class="tab_menu_btn3 tab_menu_btn" type="button">지도정보</button>
+        </div> <!-- tab_menu_container e -->
+
+        <div class="tab_box_container">
+            <div class="tab_box1 tab_box on">
+            </div>
+            <div class="tab_box2 tab_box">
+                <div>
+                    <div> <input type="button" value="1" id="btnDay0"> 1일차</div>
+                    <div> <input type="button" value="2" id="btnDay1"> 2일차</div>
+                </div>
+
+                <div id="fullSchedule">
+
+
+                    <div id="sortable-0" class="days">
+                        <h5>오전일정</h5>
+                        <div id="schGrp0" class="schdGrp">
+
+                        </div>
+                        <h5>점심일정</h5>
+                        <div id="schGrp1" class="schdGrp" >
+                        </div>
+                        <h5>오후일정</h5>
+                        <div id="schGrp2" class="schdGrp">
+                        </div>
+                        <h5>저녁일정</h5>       
+                        <div id="schGrp3" class="schdGrp">
+                        </div>
+                    </div>
+
+
+                    <div id="sortable-1" class="days">
+                        <h5>오전일정</h5>
+                        <div id="schGrp0" class="schdGrp">
+
+                        </div>
+                        <h5>점심일정</h5>
+                        <div id="schGrp1" class="schdGrp" >
+                        </div>
+                        <h5>오후일정</h5>
+                        <div id="schGrp2" class="schdGrp">
+                        </div>      
+                        <h5>저녁일정</h5>       
+                        <div id="schGrp3" class="schdGrp">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab_box3 tab_box">
+            </div> <!-- tab_box_container e -->
+        </div> <!-- tab_wrap e -->
+
+        <button>저장</button>
+
+
+        <script type="text/javascript">
+
+            //버튼 색 제거,추가
+            $('#btnDay0').on('click', function () {
+                $('.days').hide();
+                $('#sortable-0').show();
+            });
+
+            $('#btnDay1').on('click', function () {
+                $('.days').hide();
+                $('#sortable-1').show();
+            });
+
+            //버튼 색 제거,추가
+            $('.tab_menu_btn').on('click', function () {
+                $('.tab_menu_btn').removeClass('on');
+                $(this).addClass('on')
+            });
+
+            //1번 컨텐츠
+            $('.tab_menu_btn1').on('click', function () {
+                $('.tab_box').hide();
+                $('.tab_box1').show();
+            });
+
+            //2번 컨텐츠
+            $('.tab_menu_btn2').on('click', function () {
+                $('.tab_box').hide();
+                $('.tab_box2').show();
+            });
+
+
+            //3번 컨텐츠
+            $('.tab_menu_btn3').on('click', function () {
+                $('.tab_box').hide();
+                $('.tab_box3').show();
+
+            });
+
+
+
+        </script>
+</body>
+
+</html>
